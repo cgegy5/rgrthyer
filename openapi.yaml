@@ -9,7 +9,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:9997/
+  - url: http://localhost:9997
 
 components:
   schemas:
