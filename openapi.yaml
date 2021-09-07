@@ -3,7 +3,7 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: rtsp-simple-server API
-  description: API of rtsp-simple-server, a RTSP / RTMP / HLS server and proxy.
+  description: API of rtsp-simple-server, a server and proxy that supports various protocols.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -184,6 +184,8 @@ components:
           - $ref: '#/components/schemas/PathSourceRTSPSession'
           - $ref: '#/components/schemas/PathSourceRTSPSSession'
           - $ref: '#/components/schemas/PathSourceRTMPConn'
+          - $ref: '#/components/schemas/PathSourceRTSPSource'
+          - $ref: '#/components/schemas/PathSourceRTMPSource'
         sourceReady:
           type: boolean
         readers:
@@ -200,7 +202,7 @@ components:
       properties:
         type:
           type: string
-          enum: [rtspsession]
+          enum: [rtspSession]
         id:
           type: string
 
@@ -209,7 +211,7 @@ components:
       properties:
         type:
           type: string
-          enum: [rtspssession]
+          enum: [rtspsSession]
         id:
           type: string
 
@@ -218,16 +220,30 @@ components:
       properties:
         type:
           type: string
-          enum: [rtmpconn]
+          enum: [rtmpConn]
         id:
           type: string
+
+    PathSourceRTSPSource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rtspSource]
+
+    PathSourceRTMPSource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rtmpSource]
 
     PathReaderRTSPSession:
       type: object
       properties:
         type:
           type: string
-          enum: [rtspsession]
+          enum: [rtspSession]
         id:
           type: string
 
@@ -236,7 +252,7 @@ components:
       properties:
         type:
           type: string
-          enum: [rtspssession]
+          enum: [rtspsSession]
         id:
           type: string
 
@@ -245,7 +261,7 @@ components:
       properties:
         type:
           type: string
-          enum: [rtmpconn]
+          enum: [rtmpConn]
         id:
           type: string
 
@@ -254,7 +270,7 @@ components:
       properties:
         type:
           type: string
-          enum: [hlsmuxer]
+          enum: [hlsMuxer]
 
     RTSPSession:
       type: object
