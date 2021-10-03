@@ -26,9 +26,9 @@ components:
         logFile:
           type: string
         readTimeout:
-          type: integer
+          type: string
         writeTimeout:
-          type: integer
+          type: string
         readBufferCount:
           type: integer
         api:
@@ -98,7 +98,7 @@ components:
         hlsSegmentCount:
           type: integer
         hlsSegmentDuration:
-          type: integer
+          type: string
         hlsAllowOrigin:
           type: string
 
@@ -122,9 +122,9 @@ components:
         sourceOnDemand:
           type: boolean
         sourceOnDemandStartTimeout:
-          type: integer
+          type: string
         sourceOnDemandCloseAfter:
-          type: integer
+          type: string
         sourceRedirect:
           type: string
         disablePublisherOverride:
@@ -160,9 +160,9 @@ components:
         runOnDemandRestart:
           type: boolean
         runOnDemandStartTimeout:
-          type: integer
+          type: string
         runOnDemandCloseAfter:
-          type: integer
+          type: string
         runOnPublish:
           type: string
         runOnPublishRestart:
@@ -303,7 +303,7 @@ paths:
   /v1/config/get:
     get:
       operationId: configGet
-      summary: returns the current configuration.
+      summary: returns the configuration.
       description: ''
       responses:
         '200':
@@ -318,7 +318,7 @@ paths:
   /v1/config/set:
     post:
       operationId: configSet
-      summary: changes the current configuration.
+      summary: changes the configuration.
       description: all fields are optional.
       requestBody:
         required: true
