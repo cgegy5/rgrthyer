@@ -63,6 +63,7 @@ func TestReadTracks(t *testing.T) {
 		"standard",
 		"metadata without codec id",
 		"missing metadata",
+		"null metadata",
 	} {
 		t.Run(ca, func(t *testing.T) {
 			ln, err := net.Listen("tcp", "127.0.0.1:9121")
@@ -140,6 +141,15 @@ func TestReadTracks(t *testing.T) {
 						IndexLength:      3,
 						IndexDeltaLength: 3,
 					}, audioTrack)
+
+				case "null metadata":
+					require.Equal(t, &gortsplib.TrackH264{
+						PayloadType: 96,
+						SPS:         sps,
+						PPS:         pps,
+					}, videoTrack)
+
+					require.Equal(t, (*gortsplib.TrackAAC)(nil), audioTrack)
 				}
 
 				close(done)
@@ -499,6 +509,51 @@ func TestReadTracks(t *testing.T) {
 					Channels:        flvio.SOUND_STEREO,
 					AACType:         flvio.AAC_SEQHDR,
 					Payload:         enc,
+				})
+				require.NoError(t, err)
+
+			case "null metadata":
+				// C->S metadata
+				err = mrw.Write(&message.MsgDataAMF0{
+					ChunkStreamID:   4,
+					MessageStreamID: 1,
+					Payload: []interface{}{
+						"@setDataFrame",
+						"onMetaData",
+						nil,
+					},
+				})
+				require.NoError(t, err)
+
+				// C->S H264 decoder config
+				codec := nh264.Codec{
+					SPS: map[int][]byte{
+						0: sps,
+					},
+					PPS: map[int][]byte{
+						0: pps,
+					},
+				}
+				b := make([]byte, 128)
+				var n int
+				codec.ToConfig(b, &n)
+				err = mrw.Write(&message.MsgVideo{
+					ChunkStreamID:   6,
+					MessageStreamID: 1,
+					IsKeyFrame:      true,
+					H264Type:        flvio.AVC_SEQHDR,
+					Payload:         b[:n],
+				})
+				require.NoError(t, err)
+
+				// C->S H264 NALU
+				err = mrw.Write(&message.MsgVideo{
+					ChunkStreamID:   6,
+					MessageStreamID: 1,
+					IsKeyFrame:      true,
+					H264Type:        flvio.AVC_NALU,
+					Payload:         []byte{0x01, 0x02, 0x03, 0x04},
+					DTS:             1000,
 				})
 				require.NoError(t, err)
 			}
