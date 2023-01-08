@@ -147,6 +147,14 @@ components:
           type: array
           items:
             type: string
+        webrtcICEHostNAT1To1IPs:
+          type: array
+          items:
+            type: string
+        webrtcICEUDPMuxAddress:
+          type: string
+        webrtcICETCPMuxAddress:
+          type: string
 
         # paths
         paths:
@@ -290,29 +298,18 @@ components:
           type: array
           items:
             type: string
-            enum:
-            - Generic
-            - H264
-            - H265
-            - JPEG
-            - MPEG2Audio
-            - MPEG2Video
-            - MPEG4Audio
-            - Opus
-            - PCMA
-            - PCMU
-            - VP8
-            - VP9
         bytesReceived:
           type: number
         readers:
           type: array
           items:
             oneOf:
+            - $ref: '#/components/schemas/PathReaderHLSMuxer'
+            - $ref: '#/components/schemas/PathReaderRTMPConn'
+            - $ref: '#/components/schemas/PathReaderRTMPSConn'
             - $ref: '#/components/schemas/PathReaderRTSPSession'
             - $ref: '#/components/schemas/PathReaderRTSPSSession'
-            - $ref: '#/components/schemas/PathReaderRTMPConn'
-            - $ref: '#/components/schemas/PathReaderHLSMuxer'
+            - $ref: '#/components/schemas/PathReaderWebRTCConn'
 
     PathSourceRTSPSession:
       type: object
@@ -378,6 +375,31 @@ components:
           type: string
           enum: [rpiCameraSource]
 
+    PathReaderHLSMuxer:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [hlsMuxer]
+
+    PathReaderRTMPConn:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rtmpConn]
+        id:
+          type: string
+
+    PathReaderRTMPSConn:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rtmpsConn]
+        id:
+          type: string
+
     PathReaderRTSPSession:
       type: object
       properties:
@@ -396,21 +418,14 @@ components:
         id:
           type: string
 
-    PathReaderRTMPConn:
+    PathReaderWebRTCConn:
       type: object
       properties:
         type:
           type: string
-          enum: [rtmpConn]
+          enum: [webRTCConn]
         id:
           type: string
-
-    PathReaderHLSMuxer:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [hlsMuxer]
 
     RTSPConn:
       type: object
@@ -518,6 +533,12 @@ components:
         created:
           type: string
         remoteAddr:
+          type: string
+        peerConnectionEstablished:
+          type: boolean
+        localCandidate:
+          type: string
+        remoteCandidate:
           type: string
         bytesReceived:
           type: number
