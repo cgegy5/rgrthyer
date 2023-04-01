@@ -2,8 +2,8 @@ openapi: 3.0.0
 
 info:
   version: 1.0.0
-  title: rtsp-simple-server API
-  description: API of rtsp-simple-server, a server and proxy that supports various protocols.
+  title: mediamtx API
+  description: API of mediamtx, a server and proxy that supports various protocols.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -32,6 +32,8 @@ components:
         writeTimeout:
           type: string
         readBufferCount:
+          type: integer
+        udpMaxPayloadSize:
           type: integer
         externalAuthenticationURL:
           type: string
@@ -127,6 +129,8 @@ components:
           type: array
           items:
             type: string
+        hlsDirectory:
+          type: string
 
         # WebRTC
         webrtcDisable:
@@ -245,6 +249,10 @@ components:
         rpiCameraLensPosition:
           type: number
         rpiCameraAfWindow:
+          type: string
+        rpiCameraTextOverlayEnable:
+          type: boolean
+        rpiCameraTextOverlay:
           type: string
 
         # authentication
