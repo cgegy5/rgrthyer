@@ -637,6 +637,10 @@ func (c *Conn) readTracksFromMetadata(payload []interface{}) (formats.Format, fo
 			case 0:
 				return false, nil
 
+			case message.CodecMPEG4Video:
+				videoTrack = &formats.MPEG4Video{}
+				return true, nil
+
 			case message.CodecH264:
 				return true, nil
 			}
@@ -916,6 +920,9 @@ func (c *Conn) WriteTracks(videoTrack formats.Format, audioTrack formats.Format)
 					K: "videocodecid",
 					V: func() float64 {
 						switch videoTrack.(type) {
+						case *formats.MPEG4Video:
+							return message.CodecMPEG4Video
+
 						case *formats.H264:
 							return message.CodecH264
 
@@ -950,7 +957,21 @@ func (c *Conn) WriteTracks(videoTrack formats.Format, audioTrack formats.Format)
 		return err
 	}
 
-	if videoTrack, ok := videoTrack.(*formats.H264); ok {
+	switch videoTrack := videoTrack.(type) {
+	case *formats.MPEG4Video:
+		err = c.WriteMessage(&message.MsgVideo{
+			ChunkStreamID:   message.MsgVideoChunkStreamID,
+			MessageStreamID: 0x1000000,
+			Codec:           message.CodecMPEG4Video,
+			IsKeyFrame:      true,
+			Type:            message.MsgVideoTypeConfig,
+			Payload:         nil, // videoTrack.Config,
+		})
+		if err != nil {
+			return err
+		}
+
+	case *formats.H264:
 		// write decoder config only if SPS and PPS are available.
 		// if they're not available yet, they're sent later.
 		if sps, pps := videoTrack.SafeParams(); sps != nil && pps != nil {

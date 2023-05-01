@@ -18,6 +18,9 @@ func New(
 	generateRTPPackets bool,
 ) (Processor, error) {
 	switch forma := forma.(type) {
+	case *formats.MPEG4Video:
+		return newMPEG4Video(udpMaxPayloadSize, forma, generateRTPPackets)
+
 	case *formats.H264:
 		return newH264(udpMaxPayloadSize, forma, generateRTPPackets)
 

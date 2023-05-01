@@ -30,6 +30,14 @@ type rtspWriteFunc func(*rtp.Packet) error
 
 func getRTSPWriteFunc(medi *media.Media, forma formats.Format, stream *stream) rtspWriteFunc {
 	switch forma.(type) {
+	case *formats.MPEG4Video:
+		return func(pkt *rtp.Packet) error {
+			return stream.writeUnit(medi, forma, &formatprocessor.UnitMPEG4Video{
+				RTPPackets: []*rtp.Packet{pkt},
+				NTP:        time.Now(),
+			})
+		}
+
 	case *formats.H264:
 		return func(pkt *rtp.Packet) error {
 			return stream.writeUnit(medi, forma, &formatprocessor.UnitH264{

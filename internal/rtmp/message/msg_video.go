@@ -17,7 +17,8 @@ const (
 
 // supported video codecs
 const (
-	CodecH264 = 7
+	CodecH264       = 7
+	CodecMPEG4Video = 9
 )
 
 // MsgVideoType is the type of a video message.
@@ -56,7 +57,7 @@ func (m *MsgVideo) Unmarshal(raw *rawmessage.Message) error {
 
 	m.Codec = raw.Body[0] & 0x0F
 	switch m.Codec {
-	case CodecH264:
+	case CodecMPEG4Video, CodecH264:
 	default:
 		return fmt.Errorf("unsupported video codec: %d", m.Codec)
 	}

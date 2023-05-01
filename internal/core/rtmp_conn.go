@@ -44,6 +44,50 @@ type rtmpWriteFunc func(msg interface{}) error
 
 func getRTMPWriteFunc(medi *media.Media, format formats.Format, stream *stream) rtmpWriteFunc {
 	switch format.(type) {
+	case *formats.MPEG4Video:
+		return func(msg interface{}) error {
+			tmsg := msg.(*message.MsgVideo)
+
+			if len(tmsg.Payload) > 5 {
+				tmsg.Payload = tmsg.Payload[:5]
+			}
+			fmt.Printf("incoming: %+v\n", tmsg)
+
+			return nil
+
+			/*switch tmsg.Type {
+			case message.MsgVideoTypeConfig:
+				fmt.Printf("CONF %+v\n", tmsg)
+			}
+
+			if tmsg.Type == message.MsgVideoTypeAU {
+				frame, err := h264.AVCCUnmarshal(tmsg.Payload)
+				if err != nil {
+					fmt.Println(tmsg.Type)
+					return fmt.Errorf("unable to decode AVCC: %v", err)
+				}
+
+				// fmt.Println("INC", len(tmsg.Payload), tmsg.Payload[:5])
+				fmt.Println("INC", tmsg.MessageStreamID, 0x1000000)
+
+				for _, unit := range frame {
+					switch unit[0] {
+					case 179, 182:
+					default:
+						panic(unit[0])
+					}
+				}
+
+				return stream.writeUnit(medi, format, &formatprocessor.UnitMPEG4Video{
+					PTS: tmsg.DTS,
+					Frame:  tmsg.Payload,
+					NTP: time.Now(),
+				})
+			}
+
+			return nil*/
+		}
+
 	case *formats.H264:
 		return func(msg interface{}) error {
 			tmsg := msg.(*message.MsgVideo)
@@ -128,6 +172,37 @@ func getRTMPWriteFunc(medi *media.Media, format formats.Format, stream *stream) 
 	default:
 		return nil
 	}
+}
+
+func mpeg4VideoIsGOPOrIFrame(frame []byte) bool {
+	startCode := uint32(frame[0])<<24 | uint32(frame[1])<<16 | uint32(frame[2])<<8 | uint32(frame[3])
+
+	switch startCode {
+	case 0x000001B3: // GOP
+		fmt.Println("GOP")
+		return true
+
+	case 0x000001B6: // VOP
+		fmt.Println("VOP")
+		vopCodingType := frame[4] >> 6
+		return true
+		return (vopCodingType == 0) // i-Frame
+
+	default:
+		panic("no")
+	}
+
+	return false
+}
+
+func mpeg4VideoIsKeyFrame(frame [][]byte) bool {
+	for _, unit := range frame {
+		if unit[0] == 0xB6 { // VOP
+			vopCodingType := unit[1] >> 6
+			return (vopCodingType == 0) // I-Frame
+		}
+	}
+	return false
 }
 
 type rtmpConnState int
