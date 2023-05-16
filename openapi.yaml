@@ -171,13 +171,10 @@ components:
     PathConf:
       type: object
       properties:
-        # source
         source:
           type: string
-        sourceProtocol:
-          type: string
-        sourceAnyPortEnable:
-          type: boolean
+
+        # general
         sourceFingerprint:
           type: string
         sourceOnDemand:
@@ -186,12 +183,46 @@ components:
           type: string
         sourceOnDemandCloseAfter:
           type: string
-        sourceRedirect:
+
+        # authentication
+        publishUser:
           type: string
+        publishPass:
+          type: string
+        publishIPs:
+          type: array
+          items:
+            type: string
+        readUser:
+          type: string
+        readPass:
+          type: string
+        readIPs:
+          type: array
+          items:
+            type: string
+
+        # publisher
         disablePublisherOverride:
           type: boolean
         fallback:
           type: string
+
+        # rtsp
+        sourceProtocol:
+          type: string
+        sourceAnyPortEnable:
+          type: boolean
+        rtspRangeType:
+          type: string
+        rtspRangeStart:
+          type: string
+
+        # redirect
+        sourceRedirect:
+          type: string
+
+        # raspberry pi camera
         rpiCameraCamID:
           type: integer
         rpiCameraWidth:
@@ -255,24 +286,6 @@ components:
         rpiCameraTextOverlay:
           type: string
 
-        # authentication
-        publishUser:
-          type: string
-        publishPass:
-          type: string
-        publishIPs:
-          type: array
-          items:
-            type: string
-        readUser:
-          type: string
-        readPass:
-          type: string
-        readIPs:
-          type: array
-          items:
-            type: string
-
         # external commands
         runOnInit:
           type: string
@@ -298,20 +311,14 @@ components:
     Path:
       type: object
       properties:
+        name:
+          type: string
         confName:
           type: string
         conf:
           $ref: '#/components/schemas/PathConf'
         source:
-          oneOf:
-          - $ref: '#/components/schemas/PathSourceRTSPSession'
-          - $ref: '#/components/schemas/PathSourceRTSPSSession'
-          - $ref: '#/components/schemas/PathSourceRTMPConn'
-          - $ref: '#/components/schemas/PathSourceRTMPSConn'
-          - $ref: '#/components/schemas/PathSourceRTSPSource'
-          - $ref: '#/components/schemas/PathSourceRTMPSource'
-          - $ref: '#/components/schemas/PathSourceHLSSource'
-          - $ref: '#/components/schemas/PathSourceRPICameraSource'
+          $ref: '#/components/schemas/PathSourceOrReader'
         sourceReady:
           type: boolean
         tracks:
@@ -324,133 +331,34 @@ components:
         readers:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/PathReaderHLSMuxer'
-            - $ref: '#/components/schemas/PathReaderRTMPConn'
-            - $ref: '#/components/schemas/PathReaderRTMPSConn'
-            - $ref: '#/components/schemas/PathReaderRTSPSession'
-            - $ref: '#/components/schemas/PathReaderRTSPSSession'
-            - $ref: '#/components/schemas/PathReaderWebRTCConn'
+            $ref: '#/components/schemas/PathSourceOrReader'
 
-    PathSourceRTSPSession:
+    PathSourceOrReader:
       type: object
       properties:
         type:
           type: string
-          enum: [rtspSession]
-        id:
-          type: string
-
-    PathSourceRTSPSSession:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtspsSession]
-        id:
-          type: string
-
-    PathSourceRTMPConn:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtmpConn]
-        id:
-          type: string
-
-    PathSourceRTMPSConn:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtmpsConn]
-        id:
-          type: string
-
-    PathSourceRTSPSource:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtspSource]
-
-    PathSourceRTMPSource:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtmpSource]
-
-    PathSourceHLSSource:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [hlsSource]
-
-    PathSourceRPICameraSource:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rpiCameraSource]
-
-    PathReaderHLSMuxer:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [hlsMuxer]
-
-    PathReaderRTMPConn:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtmpConn]
-        id:
-          type: string
-
-    PathReaderRTMPSConn:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtmpsConn]
-        id:
-          type: string
-
-    PathReaderRTSPSession:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtspSession]
-        id:
-          type: string
-
-    PathReaderRTSPSSession:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [rtspsSession]
-        id:
-          type: string
-
-    PathReaderWebRTCConn:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [webRTCConn]
+          enum:
+          - hlsMuxer
+          - hlsSource
+          - rpiCameraSource
+          - rtmpSession
+          - rtmpSource
+          - rtmpsSession
+          - rtspSession
+          - rtspSource
+          - rtspsSession
+          - redirect
+          - udpSource
+          - webRTCSession
         id:
           type: string
 
     RTSPConn:
       type: object
       properties:
+        id:
+          type: string
         created:
           type: string
         remoteAddr:
@@ -465,6 +373,8 @@ components:
     RTSPSession:
       type: object
       properties:
+        id:
+          type: string
         created:
           type: string
         remoteAddr:
@@ -482,6 +392,8 @@ components:
     RTMPConn:
       type: object
       properties:
+        id:
+          type: string
         created:
           type: string
         remoteAddr:
@@ -499,6 +411,8 @@ components:
     HLSMuxer:
       type: object
       properties:
+        path:
+          type: string
         created:
           type: string
         lastRequest:
@@ -510,46 +424,58 @@ components:
     HLSMuxersList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/HLSMuxer'
 
     PathsList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/Path'
 
     RTMPConnsList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/RTMPConn'
 
     RTSPConnsList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/RTSPConn'
 
     RTSPSessionsList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/RTSPSession'
 
     WebRTCConn:
       type: object
       properties:
+        id:
+          type: string
         created:
           type: string
         remoteAddr:
@@ -560,6 +486,9 @@ components:
           type: string
         remoteCandidate:
           type: string
+        state:
+          type: string
+          enum: [read, publish]
         bytesReceived:
           type: integer
           format: int64
@@ -570,9 +499,11 @@ components:
     WebRTCConnsList:
       type: object
       properties:
+        pageCount:
+          type: integer
         items:
-          type: object
-          additionalProperties:
+          type: array
+          items:
             $ref: '#/components/schemas/WebRTCConn'
 
 paths:
@@ -689,6 +620,19 @@ paths:
       operationId: hlsMuxersList
       summary: returns all HLS muxers.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -706,6 +650,19 @@ paths:
       operationId: pathsList
       summary: returns all paths.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -723,6 +680,19 @@ paths:
       operationId: rtspConnsList
       summary: returns all RTSP connections.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -740,6 +710,19 @@ paths:
       operationId: rtspSessionsList
       summary: returns all RTSP sessions.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -777,6 +760,19 @@ paths:
       operationId: rtspsConnsList
       summary: returns all RTSPS connections.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -794,6 +790,19 @@ paths:
       operationId: rtspsSessionsList
       summary: returns all RTSPS sessions.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -831,6 +840,19 @@ paths:
       operationId: rtmpConnsList
       summary: returns all RTMP connections.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -868,6 +890,19 @@ paths:
       operationId: rtmpsConnsList
       summary: returns all RTMPS connections.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -900,11 +935,24 @@ paths:
         '500':
           description: internal server error.
 
-  /v1/webrtcconns/list:
+  /v1/webrtcsessions/list:
     get:
-      operationId: webrtcConnsList
+      operationId: webrtcSessionsList
       summary: returns all WebRTC connections.
       description: ''
+      parameters:
+      - name: page
+        in: query
+        description: page number.
+        schema:
+          type: number
+          default: 0
+      - name: itemsPerPage
+        in: query
+        description: items per page.
+        schema:
+          type: number
+          default: 100
       responses:
         '200':
           description: the request was successful.
@@ -917,9 +965,9 @@ paths:
         '500':
           description: internal server error.
 
-  /v1/webrtcconns/kick/{id}:
+  /v1/webrtcsessions/kick/{id}:
     post:
-      operationId: webrtcConnsKick
+      operationId: webrtcSessionsKick
       summary: kicks out a WebRTC connection from the server.
       description: ''
       parameters:
